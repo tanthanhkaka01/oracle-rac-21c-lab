@@ -23,5 +23,4 @@ Full documentation is available in the /docs directory.
 - Shared disks via VirtualBox
 
 ## Disclaimer
-
 This is a lab environment designed to simulate production-grade RAC architecture.
