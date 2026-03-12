@@ -23,8 +23,9 @@ This repository documents a 2-node Oracle RAC 21c active-active lab running on O
 
 ## Documentation
 
-- [Setup Oracle RAC DB](docs/01-setup-oracle-rac-db.md)
-- [Create a New PDB](docs/02-create-new-pdb.md)
+- [01. Setup Oracle RAC DB](docs/01-setup-oracle-rac-db.md)
+- [02. Create a New PDB](docs/02-create-new-pdb.md)
+- [03. Run HTTPS API Requests from Oracle SQL](docs/03-run-https-api-requests.md)
 
 ## Disclaimer
 
