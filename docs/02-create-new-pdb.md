@@ -1,35 +1,68 @@
-# connect OS user oracle
+# Create a New PDB
+
+## Connect as the `oracle` OS User
+
+```bash
 su - oracle
+```
 
-# connect to sqlplus CDB
+## Connect to SQL*Plus in the CDB
+
+```sql
 sqlplus / as sysdba
+```
 
-# check connect to CDB or PDB -- CDB$ROOT = CDB
-SQL> SHOW CON_NAME;
+## Verify Current Container
 
+```sql
+SHOW CON_NAME;
+```
+
+Expected result:
+
+```text
 CON_NAME
 ------------------------------
 CDB$ROOT
+```
 
-# create new pdb
-CREATE PLUGGABLE DATABASE PDBORCL2 ADMIN USER adminpdborcl2 IDENTIFIED BY oracle123;
+## Create a New PDB
 
-# Open PDB (all instance)
+```sql
+CREATE PLUGGABLE DATABASE PDBORCL2
+  ADMIN USER adminpdborcl2
+  IDENTIFIED BY oracle123;
+```
+
+## Open the PDB on All Instances
+
+```sql
 ALTER PLUGGABLE DATABASE PDBORCL2 OPEN INSTANCES=ALL;
+```
 
-# Optional: Save state to autostart PDB (all instance)
+## Save the PDB State for Auto-Start
+
+```sql
 ALTER PLUGGABLE DATABASE PDBORCL2 SAVE STATE INSTANCES=ALL;
+```
 
-# check all pdb
+## Verify the New PDB
+
+```sql
 SELECT NAME, OPEN_MODE FROM V$PDBS;
 SELECT NAME, NETWORK_NAME FROM CDB_SERVICES WHERE NAME LIKE '%PDBORCL2%';
+```
 
------------------------------------- add tnsnames.ora ------------------------------------
-# run as user oracle (both node)
-nano $ORACLE_HOME/network/admin/tnsnames.ora
-nano /home/app/oracle/homes/OraDB21Home1/network/admin/tnsnames.ora
+## Update `tnsnames.ora`
 
-# plaintext >>
+Edit the following files on both nodes:
+
+- `$ORACLE_HOME/network/admin/tnsnames.ora`
+- `$ORACLE_BASE/homes/OraDB21Home1/network/admin/tnsnames.ora`
+
+Add:
+
+```ora
 PDBORCL2 =
   (DESCRIPTION =
     (ADDRESS = (PROTOCOL = TCP)(HOST = rac-scan.private.db.com)(PORT = 1521))
@@ -38,6 +71,10 @@ PDBORCL2 =
       (SERVICE_NAME = PDBORCL2)
     )
   )
+```
 
-# connect to pdb
+## Connect to the PDB
+
+```sql
 sqlplus adminpdborcl2/oracle123
+```
