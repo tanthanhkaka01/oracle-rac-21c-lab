@@ -79,6 +79,12 @@ Notes:
 
 Log in to Oracle Linux as the OS user `oracle`.
 
+Notes:
+
+- `testrac` in the example paths is only a lab-specific database name placeholder.
+- Replace `testrac` with the database name, `DB_UNIQUE_NAME`, or admin directory name used on your server.
+- The base path can differ by OS and Oracle installation layout. On Oracle Linux it is often under `$ORACLE_BASE`, while on another host it may be a different absolute path.
+
 Optional cleanup:
 
 ```bash
@@ -109,6 +115,11 @@ For example, the certificate file may be named:
 ```text
 $ORACLE_BASE/admin/testrac/wallet/wallettemp/ISRG Root X1.crt
 ```
+
+Comment:
+
+- This example assumes the certificate was copied into the wallet temp directory created earlier.
+- If your server uses a different admin path or directory naming convention, adjust the full path accordingly.
 
 Reference:
 
@@ -196,6 +207,12 @@ END;
 
 When the session opens a password-protected wallet, grant wallet access to the same database user.
 
+Notes:
+
+- `file:/u01/app/oracle/...` is only an example URI based on a common Oracle Linux filesystem layout.
+- `u01` is not required. Your environment may use another mount point, drive, or directory root depending on OS and Oracle installation.
+- The wallet URI must point to the real wallet directory on your database server and should match the directory created under `$ORACLE_BASE`.
+
 ```sql
 BEGIN
   DBMS_NETWORK_ACL_ADMIN.APPEND_WALLET_ACE(
@@ -227,6 +244,11 @@ CONNECT api_user/"ApiUser#2026";
 
 Run a simple request:
 
+Comment:
+
+- The wallet path below must match your actual wallet location.
+- If you are not using an Oracle Linux-style `/u01/...` path, replace it with the correct `file:` URI for your environment.
+
 ```sql
 SELECT UTL_HTTP.REQUEST(
          'https://tuoitre.vn/',
@@ -245,6 +267,10 @@ Important:
 ## Optional Test Using `SET_WALLET`
 
 Instead of passing the wallet in every call, the user can set the wallet once in the session:
+
+Comment:
+
+- As above, replace the sample `file:/u01/...` wallet URI with the path that exists on your server.
 
 ```sql
 BEGIN
