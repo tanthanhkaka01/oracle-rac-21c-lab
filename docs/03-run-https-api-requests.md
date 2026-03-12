@@ -9,10 +9,46 @@ The flow is:
 1. Create a database user and grant the required privileges.
 2. Create an Oracle wallet on the database server.
 3. Add the trusted root certificate to the wallet.
-4. Grant network ACLs and wallet ACLs to the user.
+4. Grant network ACLs to the user.
 5. Execute an HTTPS request from SQL.
 
 The example request in this document uses `https://tuoitre.vn/`.
+
+## Why Run an API Call from Oracle SQL?
+
+Calling an external API directly from Oracle SQL or PL/SQL is useful when the database itself is part of the integration flow.
+
+Typical use cases:
+
+- Push data from database tables to an external API without adding a separate middleware layer.
+- Pull reference data from an external service during a PL/SQL job or batch process.
+- Trigger an HTTP callback from database logic, for example after a business event is committed.
+- Keep the integration close to scheduled jobs already running in `DBMS_SCHEDULER`.
+- Support legacy systems where the Oracle database is the main execution platform.
+
+## Why Not Use Python Instead?
+
+In many modern systems, Python, Java, or another application layer is still the better place to call external APIs.
+
+Python is usually better when:
+
+- The integration needs complex authentication flows such as OAuth, JWT rotation, or SDK-based signing.
+- The API payloads are large, nested, or require extensive JSON transformation.
+- You need modern observability, retries, circuit breakers, and structured error handling.
+- You want clearer separation between database responsibilities and application responsibilities.
+- The integration is maintained by application engineers rather than DBAs or PL/SQL developers.
+
+Oracle SQL or PL/SQL is better when:
+
+- The logic must run entirely inside the database.
+- The calling code is already part of a stored procedure, trigger alternative, batch job, or scheduler job.
+- You want to avoid another runtime, deployment unit, or integration service for a small and controlled use case.
+- The request is simple and the security model can be managed with ACLs and wallets.
+
+Practical recommendation:
+
+- Use Oracle SQL for small, controlled, database-centric integrations.
+- Use Python or another middleware layer for larger, more complex, or higher-change API integrations.
 
 ## Prerequisites
 
@@ -116,9 +152,11 @@ $ORACLE_HOME/bin/orapki wallet display \
 
 ## Step 5: Grant ACLs to the Database User
 
+For a production-oriented setup, grant access only to the specific target host instead of using `host => '*'`.
+
 ### Grant Host Access
 
-Connect as `SYS` and grant the user access to the target host on TCP port `443`.
+Connect as `SYS` and grant access only to `tuoitre.vn` on HTTPS port `443`.
 
 ```sql
 BEGIN
@@ -136,7 +174,7 @@ END;
 /
 ```
 
-If you want to allow requests to `www.tuoitre.vn` as well, add a second ACE:
+If your requests go to `www.tuoitre.vn`, add that host explicitly as well:
 
 ```sql
 BEGIN
@@ -156,7 +194,7 @@ END;
 
 ### Grant Wallet Access
 
-Because the session uses a password-protected wallet, grant wallet privileges to the same user.
+When the session opens a password-protected wallet, grant wallet access to the same database user.
 
 ```sql
 BEGIN
@@ -174,8 +212,10 @@ END;
 
 Notes:
 
-- `use_passwords` is required when the session opens the wallet with a password.
-- `use_client_certificates` is commonly granted for wallet-based HTTPS access and avoids wallet ACL issues later.
+- This setup follows the principle of least privilege.
+- Grant only the exact host names that the application needs.
+- `use_passwords` is required when you pass the wallet password at runtime.
+- `use_client_certificates` is commonly granted together with wallet access to avoid wallet-related permission issues.
 
 ## Step 6: Run the HTTPS Request
 
@@ -229,11 +269,12 @@ FROM dual;
 
 Cause:
 
-- The host ACL was not granted, or the host name does not match the URL being called.
+- The host ACL was not granted, or the host name in the ACL does not match the URL being called.
 
 Fix:
 
-- Verify `APPEND_HOST_ACE` was granted for the exact host, such as `tuoitre.vn` or `www.tuoitre.vn`.
+- Verify that the target host was granted explicitly, such as `tuoitre.vn` or `www.tuoitre.vn`.
+- Verify that the URL host exactly matches the ACL host entry.
 
 ### `ORA-29024: Certificate validation failure`
 
