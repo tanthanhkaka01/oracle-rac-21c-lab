@@ -1,6 +1,6 @@
 create or replace package PKG_HELPER_REQUEST_HTTP is
 
-  -- Author  : ADMINISTRATOR
+  -- Author  : tanthanhkaka01
   -- Created : 09/09/2025 10:01:50
   -- Purpose : PACKAGE TO HELPER REQUEST HTTP
   
