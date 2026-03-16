@@ -263,6 +263,7 @@ Important:
 
 - `UTL_HTTP.REQUEST` returns up to the first 2000 bytes only.
 - For larger responses or JSON APIs, a `BEGIN_REQUEST` / `GET_RESPONSE` / `READ_TEXT` pattern is usually better.
+- For repeated or application-level integrations, a helper package is usually better than repeating the low-level `UTL_HTTP` flow in every procedure.
 
 ## Optional Test Using `SET_WALLET`
 
