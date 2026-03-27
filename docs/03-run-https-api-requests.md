@@ -62,7 +62,7 @@ Practical recommendation:
 Connect as `SYS` or another administrative account and create a dedicated user for outbound HTTP calls.
 
 ```sql
-CREATE USER api_user IDENTIFIED BY "ApiUser#2026";
+CREATE USER api_user IDENTIFIED BY "<DB_USER_PASSWORD>";
 
 GRANT CREATE SESSION TO api_user;
 GRANT CREATE PROCEDURE TO api_user;
@@ -132,7 +132,7 @@ Run the following commands as the OS user `oracle`.
 Optional wallet cleanup:
 
 ```bash
-$ORACLE_HOME/bin/orapki wallet remove -wallet $ORACLE_BASE/admin/testrac/wallet/ -trusted_cert_all -pwd 'Fgs$fhs36g'
+$ORACLE_HOME/bin/orapki wallet remove -wallet $ORACLE_BASE/admin/testrac/wallet/ -trusted_cert_all -pwd '<WALLET_PASSWORD>'
 ```
 
 Create the wallet:
@@ -140,7 +140,7 @@ Create the wallet:
 ```bash
 $ORACLE_HOME/bin/orapki wallet create \
   -wallet $ORACLE_BASE/admin/testrac/wallet/wallet_isrg_root_x1/ \
-  -pwd 'Fgs$fhs36g' \
+  -pwd '<WALLET_PASSWORD>' \
   -auto_login
 ```
 
@@ -151,7 +151,7 @@ $ORACLE_HOME/bin/orapki wallet add \
   -wallet $ORACLE_BASE/admin/testrac/wallet/wallet_isrg_root_x1/ \
   -trusted_cert \
   -cert "$ORACLE_BASE/admin/testrac/wallet/wallettemp/ISRG Root X1.crt" \
-  -pwd 'Fgs$fhs36g'
+  -pwd '<WALLET_PASSWORD>'
 ```
 
 Optional verification:
@@ -209,14 +209,14 @@ When the session opens a password-protected wallet, grant wallet access to the s
 
 Notes:
 
-- `file:/u01/app/oracle/...` is only an example URI based on a common Oracle Linux filesystem layout.
-- `u01` is not required. Your environment may use another mount point, drive, or directory root depending on OS and Oracle installation.
-- The wallet URI must point to the real wallet directory on your database server and should match the directory created under `$ORACLE_BASE`.
+- `file:<WALLET_DIRECTORY_URI>` is only an example placeholder.
+- Your environment may use a different mount point, drive, or directory root depending on OS and Oracle installation.
+- Replace `<WALLET_DIRECTORY_URI>` with the real wallet directory URI on your database server.
 
 ```sql
 BEGIN
   DBMS_NETWORK_ACL_ADMIN.APPEND_WALLET_ACE(
-    wallet_path => 'file:/u01/app/oracle/admin/testrac/wallet/wallet_isrg_root_x1',
+    wallet_path => 'file:<WALLET_DIRECTORY_URI>',
     ace         => XS$ACE_TYPE(
                      privilege_list => XS$NAME_LIST('use_client_certificates', 'use_passwords'),
                      principal_name => 'API_USER',
@@ -239,7 +239,7 @@ Notes:
 Connect as the new user:
 
 ```sql
-CONNECT api_user/"ApiUser#2026";
+CONNECT api_user/"<DB_USER_PASSWORD>";
 ```
 
 Run a simple request:
@@ -247,14 +247,14 @@ Run a simple request:
 Comment:
 
 - The wallet path below must match your actual wallet location.
-- If you are not using an Oracle Linux-style `/u01/...` path, replace it with the correct `file:` URI for your environment.
+- Replace `file:<WALLET_DIRECTORY_URI>` with the correct `file:` URI for your environment.
 
 ```sql
 SELECT UTL_HTTP.REQUEST(
          'https://tuoitre.vn/',
          NULL,
-         'file:/u01/app/oracle/admin/testrac/wallet/wallet_isrg_root_x1',
-         'Fgs$fhs36g'
+         'file:<WALLET_DIRECTORY_URI>',
+         '<WALLET_PASSWORD>'
        ) AS response_text
 FROM dual;
 ```
@@ -271,13 +271,13 @@ Instead of passing the wallet in every call, the user can set the wallet once in
 
 Comment:
 
-- As above, replace the sample `file:/u01/...` wallet URI with the path that exists on your server.
+- As above, replace `file:<WALLET_DIRECTORY_URI>` with the path that exists on your server.
 
 ```sql
 BEGIN
   UTL_HTTP.SET_WALLET(
-    path     => 'file:/u01/app/oracle/admin/testrac/wallet/wallet_isrg_root_x1',
-    password => 'Fgs$fhs36g'
+    path     => 'file:<WALLET_DIRECTORY_URI>',
+    password => '<WALLET_PASSWORD>'
   );
 END;
 /

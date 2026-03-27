@@ -41,11 +41,11 @@ This guide describes how to install Oracle Grid Infrastructure 21c and Oracle Da
 
 ## Default Credentials
 
-- `root`, `grid`, `oracle`: `oracle`
-- `sys`, `ASMSNMP`: `oracle`
+- `root`, `grid`, `oracle`: `<CHANGE_ME_PASSWORD>`
+- `sys`, `ASMSNMP`: `<CHANGE_ME_PASSWORD>`
 - Global database name: `pridb`
 - Pluggable database name: `pridbpdb1`
-- Administrative password: `oracle`
+- Administrative password: `<CHANGE_ME_PASSWORD>`
 
 ## Required Downloads
 
@@ -79,7 +79,7 @@ For each node:
 4. Select `Minimal Install`.
 5. Select automatic partitioning.
 6. Click `Begin Installation`.
-7. Set the root password to `oracle`.
+7. Set the root password to a strong value, for example `<CHANGE_ME_PASSWORD>`.
 8. Reboot after installation completes.
 
 ## Configure Networking
@@ -856,7 +856,7 @@ nohup /u01/app/21c/grid/gridSetup.sh > /u01/app/21c/grid/grid_setup.log 2>&1 &
    - Disk group name: `OCR`
    - Discovery path: `/dev/RAC*`
    - Select `RAC_OCR_01`, `RAC_OCR_02`, `RAC_OCR_03`
-9. Use the same ASM password: `oracle`.
+9. Use the same ASM password, for example `<CHANGE_ME_PASSWORD>`.
 10. Do not use IPMI.
 11. Leave management options unchecked.
 12. Keep default operating system groups.
@@ -1035,7 +1035,7 @@ nohup $ORACLE_HOME/bin/dbca > /tmp/dbca_setup.log 2>&1 &
    - Enable EM Database Express on port `5500`
 11. User credentials:
    - Use the same password for all accounts
-   - Password: `oracle`
+   - Password: `<CHANGE_ME_PASSWORD>`
 12. Choose `Create database`.
 13. Complete prerequisite checks.
 14. Click `Finish`.
